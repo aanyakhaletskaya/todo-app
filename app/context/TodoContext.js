@@ -8,16 +8,19 @@ export function TodoProvider({ children }) {
   const [tasks, setTasks] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
+  // Загрузка из localStorage
   useEffect(() => {
     const saved = localStorage.getItem("todo-tasks");
     if (saved) setTasks(JSON.parse(saved));
     setIsLoaded(true);
   }, []);
 
+  // Сохранение в localStorage
   useEffect(() => {
     if (isLoaded) localStorage.setItem("todo-tasks", JSON.stringify(tasks));
   }, [tasks, isLoaded]);
 
+  // Таймер
   useEffect(() => {
     const interval = setInterval(() => {
       setTasks((prev) =>
@@ -38,19 +41,77 @@ export function TodoProvider({ children }) {
     return () => clearInterval(interval);
   }, []);
 
+  // Добавление задачи
   const addTask = (title, minutes, seconds) => {
     const totalSeconds = parseInt(minutes) * 60 + parseInt(seconds);
     if (!title.trim() || totalSeconds <= 0) return;
-    setTasks([{ id: Date.now().toString(), title, totalSeconds, remainingSeconds: totalSeconds, isActive: false, isCompleted: false }, ...tasks]);
+    
+    setTasks((prev) => [
+      {
+        id: Date.now().toString(),
+        title,
+        totalSeconds,
+        remainingSeconds: totalSeconds,
+        isActive: false,
+        isCompleted: false,
+      },
+      ...prev,
+    ]);
   };
 
-  const toggleTimer = (id) => setTasks(tasks.map(t => t.id === id && !t.isCompleted ? { ...t, isActive: !t.isActive } : t));
-  const deleteTask = (id) => setTasks(tasks.filter(t => t.id !== id));
-  const renameTask = (id, newTitle) => setTasks(tasks.map(t => t.id === id ? { ...t, title: newTitle } : t));
-  const clearCompleted = () => setTasks(tasks.filter(t => !t.isCompleted));
+  // Старт/Пауза (только для кнопки)
+  const toggleTimer = (id) => {
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.id === id && !t.isCompleted ? { ...t, isActive: !t.isActive } : t
+      )
+    );
+  };
+
+  // Отметить выполненной (только для галочки)
+  const toggleComplete = (id) => {
+    setTasks((prev) =>
+      prev.map((t) => {
+        if (t.id === id) {
+          const newCompleted = !t.isCompleted;
+          return {
+            ...t,
+            isCompleted: newCompleted,
+            // Если задачу выполнили, останавливаем таймер
+            isActive: newCompleted ? false : t.isActive, 
+          };
+        }
+        return t;
+      })
+    );
+  };
+
+  const deleteTask = (id) => {
+    setTasks((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  const renameTask = (id, newTitle) => {
+    setTasks((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, title: newTitle } : t))
+    );
+  };
+
+  const clearCompleted = () => {
+    setTasks((prev) => prev.filter((t) => !t.isCompleted));
+  };
 
   return (
-    <TodoContext.Provider value={{ tasks, addTask, toggleTimer, deleteTask, renameTask, clearCompleted }}>
+    <TodoContext.Provider
+      value={{ 
+        tasks, 
+        addTask, 
+        toggleTimer, 
+        toggleComplete, 
+        deleteTask, 
+        renameTask, 
+        clearCompleted 
+      }}
+    >
       {children}
     </TodoContext.Provider>
   );
