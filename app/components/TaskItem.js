@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useTodo } from "../context/TodoContext";
 
 export default function TaskItem({ task }) {
-  // Добавили toggleComplete для чекбокса
+  
   const { toggleTimer, toggleComplete, deleteTask, renameTask } = useTodo();
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(task.title);
@@ -22,7 +22,7 @@ export default function TaskItem({ task }) {
   return (
     <div className={`flex items-center justify-between p-3 border-b last:border-0 ${task.isCompleted ? 'opacity-50' : ''}`}>
       <div className="flex items-center gap-3 flex-1">
-        {/* Заменили toggleTimer на toggleComplete */}
+        
         <input 
           type="checkbox" 
           checked={task.isCompleted} 
@@ -52,7 +52,7 @@ export default function TaskItem({ task }) {
         <span className={`font-mono font-bold ${task.isActive ? 'text-blue-600' : 'text-gray-500'}`}>
           {formatTime(task.remainingSeconds)}
         </span>
-        {/* Кнопка Старт/Пауза осталась с toggleTimer */}
+        
         {!task.isCompleted && (
           <button 
             onClick={() => toggleTimer(task.id)} 

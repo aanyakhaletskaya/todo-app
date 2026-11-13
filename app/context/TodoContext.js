@@ -8,19 +8,19 @@ export function TodoProvider({ children }) {
   const [tasks, setTasks] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Загрузка из localStorage
+  
   useEffect(() => {
     const saved = localStorage.getItem("todo-tasks");
     if (saved) setTasks(JSON.parse(saved));
     setIsLoaded(true);
   }, []);
 
-  // Сохранение в localStorage
+  
   useEffect(() => {
     if (isLoaded) localStorage.setItem("todo-tasks", JSON.stringify(tasks));
   }, [tasks, isLoaded]);
 
-  // Таймер
+  
   useEffect(() => {
     const interval = setInterval(() => {
       setTasks((prev) =>
@@ -41,7 +41,7 @@ export function TodoProvider({ children }) {
     return () => clearInterval(interval);
   }, []);
 
-  // Добавление задачи
+  
   const addTask = (title, minutes, seconds) => {
     const totalSeconds = parseInt(minutes) * 60 + parseInt(seconds);
     if (!title.trim() || totalSeconds <= 0) return;
@@ -59,7 +59,7 @@ export function TodoProvider({ children }) {
     ]);
   };
 
-  // Старт/Пауза (только для кнопки)
+  
   const toggleTimer = (id) => {
     setTasks((prev) =>
       prev.map((t) =>
@@ -68,7 +68,7 @@ export function TodoProvider({ children }) {
     );
   };
 
-  // Отметить выполненной (только для галочки)
+  
   const toggleComplete = (id) => {
     setTasks((prev) =>
       prev.map((t) => {
@@ -77,7 +77,7 @@ export function TodoProvider({ children }) {
           return {
             ...t,
             isCompleted: newCompleted,
-            // Если задачу выполнили, останавливаем таймер
+            
             isActive: newCompleted ? false : t.isActive, 
           };
         }
